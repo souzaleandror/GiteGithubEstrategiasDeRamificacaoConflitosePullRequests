@@ -334,3 +334,159 @@ O que são pull requests
 Como unir vários commits em um, utilizando o comando git rebase -i
 Como enviar e como revisar um pull request no GitHub
 
+@02-Controle avançado de conflitos
+
+@@01
+Pegando um commit
+
+Trabalhamos bastante com a parte de GitHub, conversamos sobre projetos open source, vimos o que são issues, pull requests e afins, mas voltando para o conceito de Git, conforme vamos trabalhando, acabamos nos deparando com um cenário que possui uma linha de desenvolvimento master (principal), com vários commits, uma correção de bug, com merge para o master. Porém, temos um release, com a qual estamos trabalhando, cujos commits ainda não trouxemos ao master por não estarem prontos.
+Então, não poderemos simplesmente aplicar um merge ou um rebase destes commits; queremos pegar apenas as alterações feitas no segundo commit, pois precisaremos deles para algo no master. Poderemos, então, copiar o hash do commit desejado, e trazer manualmente para onde queremos, que seria o branch atual. Para fazermos isto, usaremos git cherry-pick 8f7c801 no Visualizing Git, sendo 8f7c801 o hash.
+
+Reparem que o HEAD, isto é, o local em que estamos, e o estado em que o nosso código está, fica na master. Ao executarmos o comando, o commit é selecionado e trazido para ela. Com isso, podemos buscar e trazer um commit específico. Em seguida, executaremos no Terminal git checkout master para irmos à master e, logados como Vinicius, criaremos um branch pois, tanto no repositório do GitHub quanto no repositório local, já trazemos todas as informações. Verificamos isto com git pull origin master e git pull local master.
+
+Para garantir que o código está atualizado, consultaremos o VS Code. Queremos agora trabalhar em um novo release, em desenvolvimento novo, sendo assim, começaremos criando um novo branch, com git checkout -b novo-release. Quando executamos este comando, passamos a trabalhar neste novo branch automaticamente. Voltaremos ao código no VS Code e substituiremos o h1 por h2, pois futuramente poderemos ter outros cursos, que não de DevOps.
+
+Como já estamos acostumados, commitaremos, antes executando git diff para garantir que alteramos apenas o que queríamos. git add index.html, seguido de git commit -m "h1 -> h2". E como teremos vários cursos de categorias distintas, removeremos "de DevOps da Alura" dentre as tags <title>, mantendo simplesmente "Lista de Cursos". Executaremos git add index.html novamente, e então git commit -m "Simplificando o título".
+
+Entretanto, receberemos outra demanda, sendo necessário voltar ao master para corrigir um bug. Usaremos git checkout master, pois o desenvolvimento do novo release ainda não está pronto. Passaremos a trabalhar a partir do código antigo. Mas para a correção que precisamos fazer, é necessário que tenhamos o h2 no lugar de h1. Assim, poderíamos refazer o trabalho realizado em outro branch, e commitar novamente, contendo uma alteração repetida.
+
+Mas isso não é prático — e como acabamos de aprender, pegaremos um commit específico. Executaremos o comando git checkout novo-release, e então git log --oneline e verificar o commit que queremos, no caso, "h1 -> h2", copiar seu hash, retornar à master com git checkout master e trazer o commit para ela, por meio de git cherry-pick befd28c. Assim, quando pressionamos "Enter", é trazido exatamente um único commit, aquele que selecionamos.
+
+No VS Code, teremos o título inalterado, mas o h2 estará lá, substituindo o h1 anterior. Caso terminemos o desenvolvimento do novo release e queiramos trazê-lo de volta à master, ou seja, fazer um rebase do novo release para a master, não teremos este conflito, e o Git terá um trabalho a menos para realizar porque uma das alterações já terá sido implementada.
+
+Iremos fazê-lo, portanto, com git rebase novo-release, e verificaremos no VS Code que o título foi alterado como gostaríamos, sendo que o Git teve um único trabalho a ser realizado. Com isso, passamos a entender o conceito de trazer um único commit, e entendemos que o Git não tentará refazer um trabalho.
+
+Agora, imaginemos que, durante o desenvolvimento do código queiramos saber quando h2 esteve como h1, ou seja, encontrar um estado específico da aplicação. Poderíamos utilizar git log --oneline para analisar as mensagens de commits até encontrar o que buscamos, mas se tivéssemos um histórico muito mais extenso, um projeto que levou meses para ser desenvolvido, por exemplo, esta opção se tornaria inviável.
+
+Entenderemos e conversaremos sobre isso adiante!
+
+@@02
+Cherry-pick
+
+No último vídeo, vimos como podemos trazer um único commit específico de outra branch para a branch em que estamos trabalhando.
+Em que caso faz sentido trazer um commit específico para a branch atual?
+
+Quando queremos copiar o trabalho do colega
+ 
+Alternativa correta
+Quando um bug que afeta a branch atual já foi solucionado em outra branch
+ 
+Alternativa correta! Se uma implementação é necessária em sua branch e já foi feita em outra branch, pode fazer sentido trazer um commit específico, utilizando o git cherry-pick.
+Alternativa correta
+Quando queremos fazer o merge commit a commit
+
+@@03
+Encontrando bugs
+
+Suponhamos que alguém da nossa equipe sobrescrevesse uma alteração que realizamos, modificando o título de "Lista de Cursos" para "Lista de Cursos de DevOps", inclusive commitando a alteração, e que, ainda, uma terceira pessoa da equipe, sabendo que esta alteração não deveria ter sido feita, modificasse o texto para "Lista de Cursos da Alura", commitando em seguida. Além disso, outra pessoa teria alterado o título depois de tudo isso, para "Cursos da Alura", e mais alguém voltaria o texto para "Lista de Cursos".
+Muitas modificações foram feitas no título, e agora queremos encontrar o momento exato que determinada alteração foi aplicada. Isto quer dizer que queremos voltar ao estado em que o título esteve como "Lista de Cursos da Alura", por exemplo. Executando git log --oneline, notaremos que as mensagens de commits não são muito significativas e não nos ajudam nisso.
+
+Seria necessário indicarmos ao Git que ele terá que buscar, dentre determinados commits — como os cinco últimos, por exemplo —, e ele teria que passar por cada um deles. Esta feature é chamada de bisect, e para executá-la digitaremos git bisect start, o que inicializará a busca do lado do Git. Inicialmente, é preciso informar a ele um estado, ou commit cuja parte do código que queremos não esteja boa, no caso, o título deverá ser "Lista de Cursos da Alura".
+
+Vamos executar git bisect bad HEAD, e em seguida devemos informar o estado em que possivelmente estava bom, isto é, a partir de onde ele irá buscar o commit desejado. Então, copiaremos o hash referente à primeira alteração de título, e digitaremos git bisect good c17076a. Estes serão os limites da busca feita pelo Git. Obteremos a mensagem de que há uma revisão a mais para testarmos depois desta, e ele nos mostrará o estado de "Mudando título".
+
+Neste estado, o título será aquele que queremos, e se ele ainda não tivesse encontrado a alteração desejada, continuaríamos executando git bisect bad, mas no nosso caso, como já estaremos no estado desejado, usaremos git bisect good. Após esta revisão, se tudo estiver bem, não precisaremos mais fazer nada. Para finalizar a busca, uma vez que o Git já nos entregou o hash e a descrição do commit, usaremos git bisect reset, com o qual voltaremos à master.
+
+Com o hash do commit, poderíamos desfazer a alteração, analisar o porquê da inclusão dela, perguntar o que aconteceu à pessoa que realizou o commit. Para verificarmos todas as alterações referentes ao commit, aplicaremos o comando git show seguido do hash. Para reverter esta ação, pode-se utilizar git revert juntamente ao hash.
+
+Notem como é relativamente fácil encontrar um commit em que uma alteração específica foi implementada, sem que precisássemos, por exemplo, usar o git checkout ou git show em cada um dos commits existentes. E se, a partir do momento em que encontramos uma alteração, ou quando ainda estivermos analisando o log de commits, quisermos saber quem foi o responsável por determinado commit, será que o GitHub consegue nos ajudar?
+
+@@04
+Bisect
+
+No último vídeo, nós utilizamos o git bisect para encontrar determinado ponto na história do código em que alguma alteração foi introduzida. Fizemos isso, informando os estados do commit (se estava "bom" ou "ruim").
+Para que o git bisect pode ser útil?
+
+Encontrar o culpado por um bug
+ 
+Alternativa correta
+Para atualizar a nossa linha do tempo
+ 
+Alternativa correta
+Para encontrar o commit em que um bug foi introduzido
+ 
+Alternativa correta! Encontrando o exato commit em que determinado bug foi introduzido, podemos revertê-lo ou até mesmo tentar entender o motivo daquele bug ter sido introduzido.
+
+@@05
+Encontrando o culpado
+
+Vimos uma forma de encontrar bugs, muito sobre open source, temos trabalhado de forma bastante profissional com o Git, mas há uma pequena dúvida: queremos saber quem é o responsável por adicionar a linha <h2>Cursos de DevOps</h2> em nosso arquivo, pois lembramos que anteriormente o h2 era h1. Eu estava de férias na época e não sabemos o motivo desta alteração, e queremos questioná-lo sobre.
+O Git permite um comando denominado git blame seguido do nome de um arquivo, a partir do qual são exibidos os responsáveis por cada uma das linhas do arquivo. No início do primeiro curso de Git ainda não tínhamos configurado um nome, e é por isto que os logs iniciais estão vazios, porém, isto não será um problema, pois a linha que nos interessa é facilmente identificável, sendo o responsável Vinicius Dias.
+
+E esta alteração foi introduzida no commit befd28c3, e com isto conseguimos entender quem fez uma alteração em determinada linha, e conseguimos contatar a pessoa, no caso, Vinicius. Também constam informações acerca do horário e data dos commits. No entanto, fica o adendo de que muitas vezes este comando é mal utilizado por pessoas que querem encontrar um "culpado" por um bug.
+
+Mas não é recomendado que se trabalhe desta maneira — não se deve apontar culpados. Se você estiver utilizando git blame com este propósito, é mais interessante abrir um diálogo com a pessoa, e sugerir melhorias ou resoluções do problema. Também pode-se utilizar este método para aprender mais com a pessoa que implementou algo, por exemplo.
+
+Mais adiante veremos algumas ferramentas que talvez auxiliem na visualização desta lista. Continuando, agora que já conversamos bastante sobre open source, controle avançado de versões para escolhermos um commit específico, nosso branch, por exemplo, para conseguirmos encontrar bugs ou a pessoa responsável por cada linha do nosso arquivo, está na hora de trabalharmos de forma ainda mais profissional.
+
+Não podemos, por exemplo, continuar executando todo o nosso código na master. Qual o papel da master no projeto, em um contexto mais amplo? Vamos conversar sobre branches, organização, e alguns padrões a seguir.
+
+https://cursos.alura.com.br/course/git-github-controle-de-versao
+
+@@06
+Blame
+
+Com o git blame, podemos ver quem é o responsável por cada linha no código.
+Para que isso pode ser útil?
+
+Para saber para quem perguntar sobre determinado bloco de código que não entendemos
+ 
+Alternativa correta! Com o git blame, nós podemos saber quem é o responsável por determinada linha ou bloco de código que nós não entendemos, e com isso sabemos com quem tirar a dúvida!
+Alternativa correta
+Para encontrar o culpado por um bug
+ 
+Alternativa correta
+Para desfazer uma alteração
+
+@@07
+Consolidando o seu conhecimento
+
+Chegou a hora de você pôr em prática o que foi visto na aula. Para isso, execute os passos listados abaixo.
+Acesse a pasta do seu repositório no computador;
+Execute git checkout master para trabalhar na branch master;
+Execute git pull origin master e git pull local master para garantir que você está com o código atualizado e sincronizado com os dois repositórios remotos;
+Execute git checkout -b novo-release para passar a trabalhar em um nova branch, chamada novo-release;
+Substitua as tags <h1> por <h2> no código do arquivo index.html;
+Execute git add index.html e git commit -m "h1 -> h2" para commitar esta alteração;
+Confira o hash do commit que foi mostrado na saída do comando. Copie ele;
+Altere o título do arquivo (na tag <title>) para "Lista de cursos";
+Execute git add index.html e git commit -m "Simplificando o título" para commitar esta alteração;
+Execute git checkout master para voltar a trabalhar na branch master (pois há um bug que você deve corrigir antes de continuar o trabalho do seu novo release);
+Execute o comando git cherry-pick {hash} para trazer um commit para a branch master. Substitua {hash} pelo hash que foi copiado no passo 6;
+Confira que apenas a alteração desejada foi aplicada no master, e não toda a branch novo-release;
+Execute o comando git rebase novo-release e confira que o Git executa apenas um trabalho, embora hajam dois commits na nova branch, pois um já foi trazido para o master;
+Altere o título da página (na tag <title>) para "Lista de cursos de DevOps";
+Execute git add index.html e git commit -m "Adicionando DevOps no título" para commitar esta alteração;
+Altere o título da página (na tag <title>) para "Lista de cursos da Alura";
+Execute git add index.html e git commit -m "Mudando título" para commitar esta alteração;
+Altere o título da página (na tag <title>) para "Cursos da Alura";
+Execute git add index.html e git commit -m "Mexendo no título" para commitar esta alteração;
+Altere o título do arquivo (na tag <title>) para "Lista de cursos";
+Execute git add index.html e git commit -m "Título alterado" para commitar esta alteração;
+Execute o comando git bisect start para informar ao Git que você vai iniciar uma busca por determinada alteração;
+Execute o comando git bisect bad HEAD para informar que o estado atual do código está "ruim", ou seja, o título não está no estado que você quer;
+Executando git log --oneline, copie o hash do commit com a mensagem "Simplificando o título";
+Execute o comando git bisect good {hash}, substituindo {hash} pelo hash copiado no passo anterior, para informar que o estado atual do código está "bom", ou seja, o título está no estado que você quer;
+Confira no código que agora o título está como você quer;
+Execute git bisect good para informar ao Git que neste commit o código ainda está como você quer;
+Confira no código que agora o título não está mais como você quer;
+Execute git bisect bad para informar ao Git que neste commit o código não está mais como você quer;
+Note que o Git encontrou o exato commit onde o título deixou de estar no estado em que você quer;
+Execute git bisect reset para indicar que você finalizou a busca;
+Execute o comando git show {hash}, substituindo {hash} pelo hash conferido no passo 30. Veja que é exatamente a alteração que você estava buscando;
+Para reverter esta alteração, execute git revert {hash}, substituindo {hash} pelo hash conferido no passo 30. Resolva quaisquer conflitos que possam ter sido encontrados;
+Execute git blame index.html e confira o responsável por cada linha do arquivo.
+
+Opinião do instrutor
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@08
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Que o comando git cherry-pick pode trazer um commit específico para a branch atual;
+Como encontrar o commit em que determinada alteração foi aplicada, utilizando o git bisect;
+Como encontrar o responsável por determinada linha ou bloco de código, utilizando o git blame;
+Que jamais devemos apontar um culpado por determinado bug. Uma equipe deve ser unida e se ajudar;
+Que o comando git show {hash} mostra todas as alterações aplicadas pelo commit com o hash informado.
