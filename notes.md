@@ -490,3 +490,254 @@ Como encontrar o commit em que determinada alteração foi aplicada, utilizando 
 Como encontrar o responsável por determinada linha ou bloco de código, utilizando o git blame;
 Que jamais devemos apontar um culpado por determinado bug. Uma equipe deve ser unida e se ajudar;
 Que o comando git show {hash} mostra todas as alterações aplicadas pelo commit com o hash informado.
+
+#### 21/07/2023
+
+@03-Estratégias de branching
+
+@@01
+Master e produção
+
+Atualmente nosso projeto conta com mais de um branch. Mas será que teremos Git no servidor que rodará o código, quando ele for para a produção? Caso a resposta seja "sim", o nosso código precisará estar na master? Em qual branch este código precisará estar?
+Vamos executar git log --graph para visualizarmos um gráfico contendo uma linha maior, que em determinado momento passa a ter uma linha de desenvolvimento extra, que vem de um pull request de "analura", a Ana. Em outro momento, temos linhas um pouco mais confusas, por conta de um pull request que dá início a outra linha de desenvolvimento, com merge para a master também, ou seja, temos vários branches e, no fim de tudo, há uma linha, que é do branch master.
+
+O branch master é o local que abrigará todo o trabalho, isto é, o código que irá para a produção, que está finalizado e pronto para ir ao ar. Ter o Git instalado no servidor é uma escolha pessoal da equipe de desenvolvimento ou infra. O importante é que o código, a cópia dos arquivos que precisam estar lá, tem que ser o mesmo dos arquivos contidos pelo branch master.
+
+Esta não é uma regra estrita, e sim uma convenção muito bem seguida e adotada. Utilizamos o branch master como linha principal de desenvolvimento, para onde vão os trabalhos realizados. Se os trabalhos chegam prontos, significa que temos outros branches. Portanto, o código não deve ser desenvolvido no master, pois ele não pode ser editado diretamente no master.
+
+Caso esta recomendação seja ignorada, o código continuará funcionando, inclusive muitas pessoas commitam diretamente na master, porém, a boa prática recomenda que se desenvolva em uma branch à parte para que na nossa master só estejam commits prontos e testados. Enquanto estamos desenvolvendo e commitando, sabemos que não está tudo bem testado ou com a qualidade garantida.
+
+E então conversaremos a seguir sobre quais branches devemos criar.
+
+@@02
+Log visual
+
+Durante o vídeo, nós visualizamos o nosso log de commits de uma forma um pouco mais visual, onde as diferentes branches são representadas por linhas separadas.
+Qual o comando para exibir o log desta forma?
+
+git log
+ 
+Alternativa correta
+git log --graph
+ 
+Alternativa correta! Desta forma, uma representação um pouco mais gráfica do log é exibida na linha de comando.
+Alternativa correta
+git log --format
+
+@@03
+Mais branches
+
+Como comentado anteriormente, é sempre interessante mantermos na master o código pronto para produção. Criaremos outro branch para abrigar as alterações feitas, que enviaremos ao master somente quando estiver pronto. Já temos dois branches que não estão sendo utilizados, novo-release e titulo, que removeremos com git branch -d seguido do título.
+Caso haja algum conflito, como o branch a ser deletado estar à frente do branch atual, ou seja, se novo-release tivesse alguns commits à frente do master, teríamos que utilizar git branch -D novo-release, com "D" em maiúsculo.
+Criaremos um branch de desenvolvimento por meio de git branch development, em que começaremos a testar nossas features, após executarmos git checkout development. Em seguida, partindo deste novo branch criaremos outro, para acrescentarmos uma nova lista de cursos, com git checkout -b feature/lista-cursos-cloud.
+
+No VS Code, digitaremos o seguinte, abaixo da primeira lista de cursos:
+
+<h2>Cursos de Cloud</h2>
+<dl>
+    <dt>Amazon EC2</dt>
+    <dd>Faça um deploy da sua webapp com alta disponibilidade e escalabilidade.</dd>
+
+    <dt>Amazon S3</dt>
+    <dd>Manipule e armazene objetos na nuvem</dd>
+</dl>COPIAR CÓDIGO
+Feito isto, criaremos um commit com git add index.html e git commit -m "Cursos de EC2 e S3 adicionados". Depois, adicionaremos mais dois cursos:
+
+<h2>Cursos de Cloud</h2>
+<dl>
+    <dt>Amazon EC2</dt>
+    <dd>Faça um deploy da sua webapp com alta disponibilidade e escalabilidade.</dd>
+
+    <dt>Amazon S3</dt>
+    <dd>Manipule e armazene objetos na nuvem</dd>
+
+    <dt>Amazon Elastic Beanstalk Parte 1</dt>
+    <dd>Container Docker</dd>
+
+    <dt>Amazon ECS</dt>
+    <dd>Gerencie Docker na nuvem da AWS</dd>
+</dl>COPIAR CÓDIGO
+Commitaremos com git add index.html e git commit -m "Cursos de Beanstalk e ECS adicionados". Enquanto estamos desenvolvendo, outra pessoa da equipe estará tratando dos cursos de Linux, então, a partir do branch de desenvolvimento, criaremos outro branch: git checkout -b feature/lista-cursos-linux. No VS Code, acrescentaremos mais estas linhas de código:
+
+<h2>Cursos de Linux</h2>
+<dl>
+    <dt>Linux I</dt>
+    <dd>Conhecendo e utilizando o terminal</dd>
+
+    <dt>Linux II</dt>
+    <dd>Programas, processos e pacotes</dd>
+</dl>COPIAR CÓDIGO
+Executaremos git add index.html e git commit -m "Cursos de Linux I e II adicionados". Voltaremos ao branch de desenvolvimento com git checkout development, e verificaremos a quantidade de branches que temos no momento com git branch, além da master — um com os códigos em desenvolvimento (development), e um branch para cada feature, um para a lista de cursos Cloud e outro para a lista de cursos Linux.
+
+Finalizada a lista de cursos de Linux, poderemos trazê-la para o branch de desenvolvimento, com git merge feature/lista-cursos-linux. Verificaremos se tudo está dentro dos conformes no VS Code, e com git checkout feature/lista-cursos-cloud faremos uma alteração acrescentando mais um curso à lista de cursos de Cloud.
+
+<dt>Google Cloud</dt>
+<dd>Deploy de uma aplicação em Spring MVC</dd>COPIAR CÓDIGO
+Estando no branch da lista de cursos de Cloud, executaremos git add index.html e git commit -m "Curso de Google Cloud adicionado". Por fim, iremos ao branch de desenvolvimento por meio de git checkout development e faremos um merge com git merge feature/lista-cursos-cloud. Obteremos, porém, um conflito indicando que, no trabalho atual, temos dois branches distintos, um com lista de cursos Linux e outro com a lista de cursos de Cloud.
+
+Como queremos manter ambos, simplesmente corrigiremos o código manualmente. Notem como foi tranquilo lidar com este conflito por estarmos lidando com branches separados, o que traz todas as features de uma só vez para que possamos resolvê-lo. Adicionaremos o index.html e commitaremos para que se continue o merge.
+
+Assim, em nosso branch de desenvolvimento temos as listas de cursos Cloud e Linux, e um branch para cada feature. Poderemos testar como estas duas features desenvolvidas separadamente funcionam em conjunto. Porém, ao voltarmos ao código master com git checkout master, encontraremos um bug, pois há o título "Lista de Cursos da Alura", sendo que poderemos ter cursos presenciais da Caelum.
+
+Neste caso, por mais urgente que seja a correção de um bug, não devemos commitar na master. Portanto, criaremos git checkout -b hotfix/v0.1.1 a partir da master, em que "hotfix" remete a um "conserto rápido de um bug", indicando também a versão em que será implementada esta correção.
+
+Em seguida, trocaremos "Lista de Cursos da Alura" para "Lista de Cursos" manualmente, em index.html, e executaremos git add index.html e git commit -m "Removendo nome da Alura do título" no Terminal. Por se tratar de um bug, não passaremos ao branch de desenvolvimento, e sim à produção, com git checkout master e git merge hotfix/v0.1.1. Como temos uma nova versão a ser lançada, utilizaremos o comando git tag -a v0.1.1. A mensagem para a tag será "Versão com correção no título".
+
+Neste vídeo, criamos dois branches de desenvolvimento, de features, um para trazer todas as features, e um de correção de bug, que enviamos diretamente à master. Agora, é preciso trazer todas as correções ao branch de desenvolvimento, com git merge hotfix/v0.1.1 após git checkout development. Temos, então, tudo o que é necessário para lançarmos uma nova versão no branch de desenvolvimento.
+
+Para isto, é necessário realizarmos alguns testes, por isso criaremos um branch chamado "release", de versão 0.2: git checkout -b release/v0.2.0, com a correção aplicada na versão anterior e, além disso, novas listas. Entretanto, esquecemos de incluir cursos de Shell Script na lista dos cursos de Linux! Faremos isto no branch de release, pois a feature já foi desenvolvida. Teremos:
+
+<h2>Cursos de Linux</h2>
+<dl>
+    <dt>Linux I</dt>
+    <dd>Conhecendo e utilizando o terminal</dd>
+
+    <dt>Linux II</dt>
+    <dd>Programas, processos e pacotes</dd>
+
+    <dt>Shell Script I</dt>
+    <dd>Começando seus scripts de automação de tarefas</dd>
+
+    <dt>Shell Script II</dt>
+    <dd>Fazendo monitoramento, agendando tarefas e backup</dd>
+</dl>COPIAR CÓDIGO
+Realizaremos o commit no branch desta release, por meio de git add index.html, git commit -m "Corrigindo bug: Cursos de shell faltantes". A release estará pronta, o código estará compilando sem problemas, então poderemos colocá-lo em produção, mas antes disto precisaremos enviá-lo para a master, com git checkout master e git merge release/v0.2.0.
+
+Assim, no nosso código de produção teremos a correção do título, as novas listas, referentes aos cursos de Linux e Cloud, e a correção da release. E se temos uma nova versão, teremos uma nova tag — executaremos git tag -a v0.2.0 -m "Novas listas de cursos adicionadas". Ao executarmos git branch, verificaremos a existência do branch que terá nosso estado mais próximo da versão futura, junção de todos os branches de feature, as quais se juntarão ao branch de desenvolvimento.
+
+Quando tudo isto estiver mais testado e próximo de ir à produção, criamos um branch de release para passar à equipe de qualidade para que eles possam testar, e se houver algum problema muito sério, pode-se resolver diretamente no branch de release. Mas se surgir um bug de algo que está em produção, precisaremos corrigir a partir da master, criando um novo branch para correção, e enviando de volta para a master e para o branch de desenvolvimento, que precisa estar sempre atualizado.
+
+@@04
+Git Flow
+
+Esta forma de organização de branches que facilita a resolução de conflitos, inclusive para que bugs repetidos não aconteçam, é denominada Git flow, bem representada em alguns gráficos, como este:
+
+
+Nele, o branch master só serve para receber os commits prontos para ir à produção, a partir dos quais geramos as tags. Existe também o branch de desenvolvimento (Develop), de que serão criados os branches de feature, ou seja, funcionalidades novas, os quais serão enviados de volta ao branch de desenvolvimento em dado momento. Quando o branch de desenvolvimento tiver todas as features, criamos um branch de release, isto é, quando começa o processo de lançarmos uma nova versão.
+
+E no branch de release somente corrigimos os bugs relacionados ao release em si. Ou seja, sempre que um bug for corrigido, é preciso enviá-lo de volta ao branch de desenvolvimento, pois outras features podem se aproveitar desta correção. E no final, tudo estando corrigido, irá para a master para receber uma tag. Caso ocorra algum problema em produção, ou seja, no branch master, um branch de hotfix precisará ser criado e, sempre que corrigido, tudo é enviado à master, e em seguida, também para o branch de desenvolvimento. Claro, pois todas as features se aproveitarão desta correção.
+
+Há outro gráfico, que envolve vários branches de features, ou seja, de funcionalidades, um geral, de desenvolvimento, branches de release, ou seja, versões a serem lançadas, de hotfixes e o master. Portanto, são os mesmos branches dispostos em top down, em vez de horizontalmente. Tudo começa na master, de onde se cria um branch de desenvolvimento, até que surja a necessidade de uma nova funcionalidade, e para isto, são criados branches.
+
+Enquanto isso, quando se encontra um bug em produção, é criado um branch a partir da master, o bug é corrigido e a correção é enviada de volta à master, sendo criada uma tag de correção. Feito isso, a correção é enviada ao branch de desenvolvimento, para que todas as features, quando forem enviadas ao branch de desenvolvimento, tenham a correção implementada.
+
+Quando o desenvolvimento de uma feature for finalizado, podemos começar o processo de desenvolvimento da release. Para tal, criamos um branch de release, dentro do qual corrigimos bugs específicos dela. Se o bug em específico não afeta esta release, não mexeremos nele; se é uma funcionalidade nova, não é este o momento de mexermos nela.
+
+Conforme os bugs são corrigidos, os branches de desenvolvimento são atualizados. Quando uma nova feature é finalizada, ela é enviada ao branch de desenvolvimento, de onde é enviada para o branch de release. Quando todos os testes forem finalizados e o branch de release estiver pronto, atualizamos o branch de desenvolvimento enviando a correção também para o branch master, e criando uma nova tag, ou versão.
+
+Este fluxo denominado Git flow pode ajudar equipes em projetos grandes, diminuindo o número de conflitos, organizando o ciclo de desenvolvimento de uma versão, algo bem interessante. Quando estamos desenvolvendo sozinhos, não parece muito prático, mas quando estamos em uma equipe grande, isso faz toda a diferença. Claro, esta não é a única estratégia de organização de fluxo existente.
+
+Atualmente, na empresa em que trabalho, por exemplo, lidamos com um projeto de cerca de vinte anos, e temos um sistema que gerencia as demandas, chamadas tickets, e cada uma delas vira um branch. A funcionalidade ou correção que gerou o novo branch se desloca para um branch específico de code review (revisão de código) para garantir que o código esteja correto, passando ao branch de testes, em que a equipe de qualidade analisa se todo o restante do sistema continua funcionando com esta implementação, e caso positivo, se seguirá ao branch de release, específica da versão.
+
+Quando a versão estiver finalizada, é realizado o merge para o master. Então, é um pouco diferente, embora se baseie em algo similar, mas exemplifica a possibilidade de não termos que necessariamente aplicar todos os branches e conceitos do Git flow, e sim somente aqueles que fazem sentido para o trabalho e equipe.
+
+É verdade que o trabalho de lidar com vários branches é bastante manual, e é por isso que conversaremos a seguir sobre ferramentas que podem nos ajudar com isso!
+
+https://caelum-online-public.s3.amazonaws.com/1276+-+Git+e+Github+pt+2/transcri%C3%A7%C3%A3o/20180412-git-flow.png
+
+@@05
+Várias branches
+
+Aprendemos de forma bem resumida sobre a estratégia de organização de branches, chamada Git Flow.
+Quais as branches presentes nesta estratégia?
+
+Master, Develop, Branches de feature, Branches de Hotfix e Branches de release
+ 
+Alternativa correta! Cada uma das branches tem um propósito bem definido e nos ajudam a manter o nosso controle de versões bem organizado.
+Alternativa correta
+Master e Develop
+ 
+Alternativa correta
+Master, Ticket, Testing, Release
+
+@@06
+Consolidando o seu conhecimento
+
+Chegou a hora de você pôr em prática o que foi visto na aula. Para isso, execute os passos listados abaixo.
+Execute git log --graph e confira que, embora haja várias linhas de desenvolvimento, tudo começa e termina na linha da branch master;
+Execute o comando git branch -d titulo para remover a branch titulo;
+Execute o comando git branch -D novo-release para remover a branch novo-release, mesmo que ela tenha commits à frente do master;
+Execute o comando git branch development para criar um nova branch de desenvolvimento chamado development;
+Execute o comando git checkout development para passar a trabalhar na branch development;
+Execute o comando git checkout -b feature/lista-cursos-cloud para criar um nova branch, chamada feature/lista-cursos-cloud;
+Adicione o seguinte conteúdo após a lista de cursos de DevOps:
+<h2>Cursos de Cloud:</h2>
+<dl>
+ <dt>Amazon EC2</dt>
+ <dd>Faça um deploy da sua webapp com alta disponibilidade e escalabilidade.</dd>
+
+ <dt>Amazon S3</dt>
+ <dd>Manipule e armazene objetos na nuvem</dd>
+</dl>COPIAR CÓDIGO
+Execute git add index.html e git commit -m "Cursos de EC2 e S3 adicionados" para commitar esta alteração;
+Adicione a esta lista os dois seguintes cursos:
+ <dt>Amazon Elastic Beanstalk Parte 1</dt>
+ <dd>Container Docker</dd>
+
+ <dt>Amazon ECS</dt>
+ <dd>Gerencie Docker na nuvem da AWS</dd>COPIAR CÓDIGO
+Execute git add index.html e git commit -m "Cursos de Beanstalk e ECS adicionados" para commitar esta alteração;
+Execute git checkout development para voltar para a branch de desenvolvimento;
+Execute git checkout -b feature/lista-cursos-linux para passar a trabalhar em um nova branch, chamada feature/lista-cursos-linux;
+Adicione o seguinte conteúdo após a lista de cursos de DevOps:
+<h2>Cursos de Linux:</h2>
+<dl>
+<dt>Linux I</dt>
+<dd>Conhecendo e utilizando o terminal</dd>
+
+<dt>Linux II</dt>
+<dd>Programas, processos e pacotes</dd>
+</dl>COPIAR CÓDIGO
+Execute git add index.html e git commit -m "Cursos de Linux I e II adicionados" para commitar esta alteração;
+Execute git checkout development para voltar para a branch de desenvolvimento;
+Execute o comando git branch para conferir quantas e quais branches você têm criadas atualmente;
+Execute o comando git merge feature/lista-cursos-linux para trazer os cursos de Linux para a branch de desenvolvimento;
+Execute o comando git checkout feature/lista-cursos-cloud para voltar à branch feature/lista-cursos-cloud;
+Adicione, à lista de cursos de Cloud, o seguinte curso:
+<dt>Google Cloud</dt>
+<dd>Deploy de uma aplicação em Spring MVC</dd>COPIAR CÓDIGO
+Execute git add index.html e git commit -m "Curso de Google Cloud adicionado" para commitar esta alteração;
+Execute git checkout development para voltar para a branch de desenvolvimento;
+Execute o comando git merge feature/lista-cursos-cloud para trazer os cursos de Cloud para a branch de desenvolvimento;
+Resolva o conflito mantendo as duas listas novas de cursos;
+Execute git add index.html e git commit para continuar o processo de merge;
+Volte para a branch master com o comando git checkout master;
+Trabalhe em um nova branch, chamada hotfix/v0.1.1, utilizando o comando git checkout -b hotfix/v0.1.1;
+Altere o título da página (na tag <title>) para "Lista de cursos";
+Execute git add index.html e git commit -m "Removendo o nome da Alura do título" para commitar esta alteração;
+Volte para a branch master, com o comando git checkout master;
+Una o trabalho do hotfix, com o comando git merge hotfix/v0.1.1;
+Crie uma nova tag que representa uma nova versão, utilizando o comando git tag -a v0.1.1 -m "Versão com correção no título";
+Vá para a branch de desenvolvimento com git checkout development;
+Traga a correção do bug com git merge hotfix/v0.1.1;
+Crie um nova branch, chamada de release/v0.2.0, com o comando git checkout -b release/v0.2.0;
+Adicione os dois seguintes cursos na lista de cursos de Linux:
+<dt>Shell Script I</dt>
+<dd>Começando seus scripts de automação de tarefas</dd>COPIAR CÓDIGO
+<dt>Shell Script II</dt>
+<dd>Fazendo monitoramento, agendando tarefas e backup</dd>COPIAR CÓDIGO
+Execute git add index.html e git commit -m "Corrigindo bug: Cursos de Shell faltantes" para commitar esta alteração;
+Volte para a branch master, com o comando git checkout master;
+Una todo o trabalho referente à nova release, com git merge release/v0.2.0;
+Crie uma nova tag que representa uma nova versão, utilizando o comando git tag -a v0.2.0 -m "Novas listas adicionadas";
+Execute o comando git branch e confira todos as branches criadas neste processo;
+
+Opinião do instrutor
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@07
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Que é uma convenção bem seguida que a branch master tenha apenas os commits prontos para ir para produção;
+Que não é interessante realizar trabalho e commitar diretamente na branch master;
+Como remover uma branch:
+git branch -d {nome_branch} remove uma branch que já tem seu trabalho unido à branch atual;
+git branch -D {nome_branch} remove uma branch mesmo que os commits desta branch ainda não estejam na branch atual, ou seja, força a remoção;
+Um pouco do processo chamado de Git Flow:
+Entendemos que o estado do código representado pela branch master deve ser o mesmo que estará em produção
+Vimos que deve haver uma branch de desenvolvimento (comumente chamado de develop), onde todas as funcionalidades e correções devem ser muito bem testadas antes de ir para produção (master)
+Vimos que cada funcionalidade deve ser feita em uma branch separada, e que é comum que esta branch tenha feature/ como prefixo
+Aprendemos também que bugs normalmente são corrigidos em branches separadas, com o prefixo hotfix/
+Além disso, branches específicas para cada release são criadas para realizar os testes e correções de bugs específicos
