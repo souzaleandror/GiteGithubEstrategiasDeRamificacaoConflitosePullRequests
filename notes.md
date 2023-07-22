@@ -741,3 +741,152 @@ Vimos que deve haver uma branch de desenvolvimento (comumente chamado de develop
 Vimos que cada funcionalidade deve ser feita em uma branch separada, e que é comum que esta branch tenha feature/ como prefixo
 Aprendemos também que bugs normalmente são corrigidos em branches separadas, com o prefixo hotfix/
 Além disso, branches específicas para cada release são criadas para realizar os testes e correções de bugs específicos
+
+#### 22/07/2023
+
+@04-Ferramentas visuais
+
+@@01
+Git Cola
+
+Vamos falar sobre ferramentas de interface gráfica para termos algum auxílio durante o trabalho com o Git. No site oficial do Git há recomendações de várias ferramentas, dentre as quais veremos três, bastante conhecidas. O Git Cola foi uma das primeiras ferramentas que surgiram com interface gráfica multiplataforma, e por isto ela acaba sendo citada em muitos materiais.
+Para instalá-la, basta seguir as instruções contidas no site. Após a instalação, teremos uma interface de usuário relativamente simples e amigável, em que selecionaremos o repositório com os códigos gerenciados pelo Git. O interessante é que ela encontra cada uma das features, hotfixes, releases, quais são os branches remotos, tags, e assim por diante. Vamos executar alguma alteração para verificar se ela é facilmente identificada.
+
+Acrescentaremos dois pontos (:) em todos os h2 e salvaremos o arquivo. No Git Cola, a modificação é encontrada e exibida no painel de Status, e quando clicamos no nome do arquivo, são exibidos os locais das modificações, de forma amigável. Então, no painel de Commit, digitaremos "Adicionando 2 pontos nos títulos", sendo possível incluir detalhes sobre a modificação também, mas como por ora só incluímos uma mensagem por commit, manteremos este padrão.
+
+Antes de realizarmos o commit, selecionaremos o arquivo modificado no painel Status, e clicaremos com o lado direito do mouse selecionando "Stage Selecionado". E então clicaremos no botão "Commit" localizado no painel central. No menu de ferramentas superior, acessaremos "Ver > Visualizar o histórico", para que seja exibido um gráfico com o histórico de commits.
+
+Por fim, poderemos ir em "Ações > Push...", informar que queremos que o envio seja feito para o repositório local, do branch master para o branch remoto master. Clicaremos em "Push" no canto inferior direito, e as alterações são enviadas como gostaríamos. Caso queiramos clonar um novo projeto, é preciso acessar "Arquivo > Clonar...", e selecionar a URL desejada do GitHub, por exemplo.
+
+Isso nos traz algumas facilidades, conseguimos fazer um push com um único clique de botão. O Git Cola talvez não seja a ferramenta mais complexa ou visualmente impecável, mas antes de conhecermos uma ferramenta rebuscada para o Git, existe outra, do GitHub, com interface gráfica para desktop, que conheceremos a seguir.
+
+@@02
+GitHub Desktop
+
+Agora que sabemos da existência de ferramentas com interface gráfica para ajudar nosso trabalho com o Git, lidaremos com uma ferramenta do próprio GitHub, o site do GitHub Desktop possui uma pequena descrição, e um botão para download, em que clicaremos.
+Para quem utiliza Linux, a recomendação é este link, que contém alguns arquivos para serem baixados. Também há um link para discussão sobre o aplicativo nativo, ou seja, para que a própria equipe do GitHub Desktop lance uma versão oficial.
+Após baixarmos o programa, durante sua instalação faremos o login; o programa irá rodar um git config --global, setando nome e e-mail. Em seguida, teremos acesso a todos os nossos repositórios, inclusive do "alura-git". Poderemos cloná-lo clicando em "Clone CViniciusSDias/alura-git", ou então abrir um repositório existente na nossa máquina local, após o qual basta clicarmos em "Add repository".
+
+Nosso branch master está um pouco "atrasado" em relação ao branch master que se encontra no GitHub, isto porque anteriormente tivemos que excluir as credenciais do GitHub para podermos nos logar como a Ana. Vamos excluir as credenciais antigas novamente para podermos realizar o login como Vinicius. Aparentemente é possível fazermos isto pelo GitHub Desktop simplesmente clicando em "Publish branch".
+
+Seremos informados de que não há nenhuma modificação local, faremos outra alteração para verificar o comportamento: alteraremos <h2>Cursos de Cloud:</h2> para <h2>Meus Cursos de Cloud:</h2>. A alteração será identificada mais rapidamente, em comparação com o Git Cola, e poderíamos incluir uma descrição e fazer o commit, acessar o histórico, que é textual, e não gráfico como no Git Cola. Teremos todos os branches, bem como a lista de pull requests. Assim, se estivéssemos acessando o repositório de outra pessoa, poderíamos criar um pull request por meio do GitHub Desktop, então, temos controle de toda a interface do GitHub utilizando um programa instalado. Poderemos descartar as alterações feitas.
+
+Com isso, vimos duas ferramentas — o Git Cola, que é uma interface para o Git, ou seja, para organizarmos o repositório local, e o GitHub Desktop, que é um pouco mais interessante, porque além de gerenciar o nosso repositório local, ele possui uma integração boa com o GitHub, havendo a possibilidade de criar pull requests, analisá-los, verificar nossas issues.
+
+Porém, anteriormente comentamos sobre a utilização do Git flow, e até então nenhuma destas ferramentas traz facilidades em relação a isso. Adiante, conheceremos uma ferramenta ainda mais poderosa, e que nos ajudará a trabalhar com o Git flow.
+
+https://desktop.github.com/
+
+http://github.com/shiftkey/desktop
+
+http://github.com/desktop/desktop/issues/1525
+
+@@03
+GitKraken
+
+http://www.gitkraken.com/
+
+A última ferramenta recomendada de controle visual com Git é o GitKraken e, para instalá-la, basta seguir as instruções de acordo com o sistema operacional utilizado. Feito o download e a instalação, nos logaremos com os dados do GitHub, sendo possível também criar uma conta no GitKraken. Autorizaremos acesso, selecionaremos um ícone para o perfil, configuraremos nome e e-mail.
+Poderemos criar um repositório diretamente no GitHub por meio do GitKraken, mas começaremos abrindo um repositório ("Open a repo"), e desta vez usaremos o repositório da Ana, já que nos logamos com os dados dela. Clicaremos na opção "Pull" do menu superior para trazermos todos os dados; há algumas alternativas para isto, como trazer todos os commits em ordem e, caso isto não seja possível, com merge, ou algum erro. Também poderemos verificar apenas as alterações realizadas, sem trazê-los, e assim por diante.
+
+O gráfico exibido é bem mais interessante, em comparação com os que vimos anteriormente, contendo a descrição do commit e sua representação visual, inclusive incluindo ícones de quem realizou o commit. Além das ações como pull, push, trabalhar com branches, fazer stash, pop do mesmo, temos como visualizar branches locais, remotos, pull requests recebidos, tags e submódulos, que não são importantes para o momento.
+
+Também poderemos acessar um botão de menu no canto superior direito, representado por três linhas horizontais empilhadas, e clicar em "Preferências" ("Preferences"), e então em "Git flow". Isto significa que conseguimos trabalhar com o Git flow a partir do GitKraken. Definiremos os nomes do branch master, do branch de desenvolvimento, quais prefixos para os branches de feature, release, hotfix, tag da versão, então inicializaremos.
+
+Será identificado que já existem alguns prefixos e, caso mudemos, é possível que sejamos ignorados. Então, reparem que um branch de desenvolvimento ("develop") é automaticamente criado. Se quiséssemos criar uma feature, basta clicarmos na seta ao lado de "Git flow" no menu lateral, seguido de "Feature" para nomeá-la. Para testarmos, criaremos feature/lista-cursos-redes.
+
+Voltaremos ao VS Code e acrescentaremos o seguinte ao arquivo index.html do projeto da Ana:
+
+<h2>Redes</h2>
+<dl>
+    <dt>Redes 1</dt>
+    <dd>Introdução, Conceitos e Prática</dd>
+
+    <dt>Redes 2</dt>
+    <dd>Montando um projeto do cliente até o provedor de serviços</dd>
+</dl>COPIAR CÓDIGO
+Criamos uma feature por meio do GitKraken, realizamos o desenvolvimento, e a modificação é prontamente identificada; podemos, inclusive, editá-la diretamente pelo GitKraken, modificar a forma de visualização, e adicionar uma mensagem, como "Lista de cursos de redes". Clicaremos no botão "Stage File", e depois em "Commit". Feito isto, temos como opções clicar com o lado direito do mouse sobre "lista-cursos-redes" no menu lateral, e em "Finish feature/lista-cursos-redes", ou na seta ao lado de "GIT FLOW", e em "Feature" de "Finish", ou ainda em "Finish feature/lista-cursos-redes".
+
+Neste caso, como não mexemos no develop, não será preciso marcar o checkbox de "Rebase on develop", e se quisermos poderemos remover este branch automaticamente. Com isso, o merge para o branch de desenvolvimento é realizado automaticamente, e o novo branch é excluído. Para confirmarmos, acessaremos o Terminal e digitaremos cd ../ana/projeto e git log --graph, ao que obteremos a mensagem "Merge branch 'feature/lista-cursos-redes' into develop". Isso facilita muito o nosso trabalho.
+
+Conseguimos mudar de uma feature para outra por meio de um clique com o lado direito do mouse e em "Checkout master", por exemplo. Podemos, também, clicar e arrastar o "develop" para cima de "master" no centro do programa, para realizar um merge ou rebase. Enfim, o GitKraken é muito poderoso e completo, e a recomendação é experimentar todas as suas possibilidades.
+
+Agora, temos bastante conhecimento acerca do Git; já entendemos sobre open source, conhecemos outras ferramentas, tanto para gerenciar os repositórios (como o Bitbucket e o GitLab), quanto ferramentas de interface como o Git Cola, GitHub Desktop e o GitKraken. Poderemos avançar para uma parte um pouco diferente de somente gerenciarmos código, para "infraestrutura" ou operações a partir do nosso código desenvolvido.
+
+Quando enviarmos uma alteração ao repositório remoto, com nome de local, queremos que automaticamente aconteça um deploy desta aplicação. Como será que conseguiremos fazer isto?
+
+@@04
+Para saber mais: Ferramentas
+
+Na última aula, nós conhecemos algumas ferramentas que podem nos auxiliar com o controle de versões do nosso código utilizando Git. Isso pode levar ao questionamento: "Será que preciso mesmo aprender os comandos, se há ferramentas visuais que fazem o mesmo trabalho?"
+Bom, é verdade que você conseguiria fazer quase todo o trabalho utilizando estas ferramentas, mas também é verdade que nem sempre elas estarão disponíveis.
+
+Em algum momento da sua vida, você precisará acessar um servidor que não possui interface gráfica, ou manter o código de uma máquina que não é sua, logo, não tem suas ferramentas instaladas.
+
+A questão é: em algum momento, você precisará saber como executar o trabalho direto pela linha de comando.
+
+Aprenda a utilizar ferramentas que possam agilizar seu trabalho, mas aprenda a fazer o trabalho sem elas também! ;-)
+
+@@05
+Consolidando o seu conhecimento
+
+Chegou a hora de você pôr em prática o que foi visto na aula. Para isso, execute os passos listados abaixo.
+Acesse o site https://git-cola.github.io/downloads.html e realize o download e instalação do Git Cola;
+Abra o Git Cola e selecione o seu repositório, para que o programa possa gerenciar as alterações;
+Em seu repositório, adicione dois pontos (:) após cada título das listas de cursos;
+No Git Cola, aguarde alguns segundos e observe que a sua alteração já pode ser visualizada;
+Com o botão direito do mouse, clique no arquivo modificado e clique em Stage Selecionado, para realizar o trabalho equivalente ao git add;
+Escreva uma mensagem de commit e clique no botão Commit;
+No menu Ver, clique em Visualizar Histórico e confira uma visualização mais interessante do seu log;
+No menu Ações, clique em Push para enviar as alterações para o seu repositório remoto, de nome local, na branch master;
+Instale o GitHub Desktop:
+9.1. Se você estiver no Windows ou macOS, acesse https://desktop.github.com/ para instalá-lo;
+
+9.2. Se você estiver utilizando Linux, acesse https://github.com/shiftkey/desktop para baixar e instalar;
+
+Faça login com o seu usuário e preencha os dados de configuração;
+Se familiarize com a interface do GitHub Desktop;
+Acesse o site https://www.gitkraken.com/download para realizar o download e instalar o Git Kraken;
+Após instalado, faça login utilizando o seu usuário do GitHub (ou crie uma nova conta, se preferir);
+Clique em Open a Repo para abrir o seu repositório;
+Clique no botão Pull para trazer todas as alterações do repositório remoto;
+Analise e se familiarize com a interface do Git Kraken;
+Clique no ícone de menu no canto superior direito da interface, e depois clique em Preferences;
+Na tela que abrir, vá para a aba Git Flow. Analise as opções, altere caso desejar, e depois clique em Initialize Git Flow;
+No canto esquerdo da tela principal do programa, na parte Git Flow, clique na seta para a direita que é exibida, e então clique em Feature;
+Defina o nome da branch que será criada como feature/lista-cursos-redes;
+Clique em Start Feature. O Git Kraken irá criar esta branch para você;
+No código fonte, adicione o seguinte conteúdo:
+<h2>Redes</h2>
+<dl>
+<dt>Redes 1</dt>
+<dd>Introdução, Conceitos e Prática</dd>
+
+<dt>Redes 2</dt>
+<dd>Montando um projeto do cliente até o provedor de serviços</dd>
+</dl>COPIAR CÓDIGO
+No canto direito da tela, clique no botão Stage all changes para adicionar as alterações que deverão ser commitadas;
+Logo abaixo, defina a mensagem de commit como "Lista de cursos de redes" e clique em Commit changes;
+Novamente no canto esquerdo, na aba Git Flow, clique na seta para a direita, e clique no botão Finish feature/lista-cursos-redes;
+Clique no botão Finish feature para que o Git Kraken faça o merge para a branch develop e remova a branch atual;
+
+https://git-cola.github.io/downloads.html
+
+https://desktop.github.com/
+
+https://github.com/shiftkey/desktop
+
+https://www.gitkraken.com/download
+
+Opinião do instrutor
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@06
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Que há ferramentas visuais que podem nos auxiliar com o trabalho com o Git;
+O Git Cola foi uma das primeiras ferramentas visuais multiplataforma. Embora não seja a mais complexa ou visualmente atraente, é bem completa e pode nos ajudar bastante;
+O GitHub Desktop pode ser interessante para gerenciar os projetos do GitHub de forma mais ágil e facilitada, sem a necessidade de acessar o site;
+O GitKraken é uma ferramenta extremamente completa, que nos auxilia inclusive com a implementação do Git Flow.
