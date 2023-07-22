@@ -890,3 +890,155 @@ Que há ferramentas visuais que podem nos auxiliar com o trabalho com o Git;
 O Git Cola foi uma das primeiras ferramentas visuais multiplataforma. Embora não seja a mais complexa ou visualmente atraente, é bem completa e pode nos ajudar bastante;
 O GitHub Desktop pode ser interessante para gerenciar os projetos do GitHub de forma mais ágil e facilitada, sem a necessidade de acessar o site;
 O GitKraken é uma ferramenta extremamente completa, que nos auxilia inclusive com a implementação do Git Flow.
+
+@05-Hooks e deploy com Git
+
+@@01
+Eventos no Git
+
+Ficamos com uma dúvida: de que maneira poderemos colocar nossa aplicação em produção automaticamente quando uma modificação é enviada para o repositório remoto, que denominamos "local"?
+Estamos de volta à pasta "vinicius", no Terminal. E utilizamos a palavra "quando" na pergunta, o que implica na existência de um evento, isto é, quando algo acontecer, deverá ser executada alguma ação. O Git possui eventos próprios, que são chamados de hooks. Assim, conseguimos criar os chamados Git Hooks para executarem uma ação quando um evento acontecer.
+
+Isso parece bem complexo, mas é bem mais fácil do que parece. Vamos executar cd .git, e o Git bash já nos avisa que estamos dentro do diretório Git. Em seguida, com ls, listaremos as pastas, em que normalmente não mexeremos, porém, entraremos em "hooks" com cd hooks/. Com ls, teremos vários arquivos .sample, ou seja, ".exemplo".
+
+São comandos que podem ser executados quando determinados eventos acontecerem, como por exemplo um pré commit (pre-commit.sample). Isto quer dizer que, antes de executar um commit, um script com este nome será executado. Vamos tentar abri-lo para verificar seu conteúdo, por meio de cat pre-commit.sample. Identificaremos que trata-se de um Shell script, portanto poderemos criar um para que seja executado quando tentarmos realizar um commit.
+
+Utilizaremos o comando vim pre-commit, sem o .sample, pois assim são os eventos. Criado o arquivo, começaremos o arquivo digitando #!/bin/sh (não se preocupem caso não conheçam Shell script), e então poderemos executar qualquer comando que digitamos no Terminal, como echo "Você está prestes a commitar. :-)". Pressionaremos a tecla "Esc" seguido de dois pontos (:), xis (x) e "Enter".
+
+Então, digitaremos ls -l para verificar a permissão destes arquivos, aparentemente o pre-commit estará correto por estar com a mesma permissão dos demais, caso você esteja no Linux, ou no Mac, a permissão não estará setada desta forma. Executaremos o comando chmod u+x pre-commit seguido de ls -l. Neste caso, não há nenhuma diferença em relação à lista anterior. Mas se você ainda não tinha permissão para execução, indicado por -x, agora a terá.
+
+Sairemos da pasta do Git com cd ../.. e tentaremos realizar algum commit acessando o arquivo do VS Code. Alteraremos "Cursos de Linux" para "Cursos do SO Linux". Voltaremos ao Terminal, e estaremos na master, porém não nos preocuparemos com isto no momento. Vamos executar git add index.html e git commit -m "Alterando título dos cursos de Linux", ao que teremos o retorno do script que incluímos anteriormente. Trata-se de um evento do Git, um hook do mesmo.
+
+Caso estejamos trabalhando com código Java, C#, PHP, por exemplo, e queiramos executar os testes antes do commit efetivo, é possível incluir um script que execute os testes dentro do script de pré commit. Se quisermos realizar o deploy da nossa aplicação, é possível inclui-lo no pré commit. Para verificar se o código está escrito seguindo as normas padrão, podemos incluir o script dentro do pré commit.
+
+Isso abre um leque de possibilidades, dentre as quais está a configuração de um hook no nosso repositório remoto, que contém somente a gerência dos arquivos Git, e não uma cópia em específico, e lá executar uma ação que configure o deploy da aplicação. Vamos conversar um pouco melhor sobre isso a seguir.
+
+@@02
+Git hooks
+
+Vimos no último vídeo que o Git nos permite, através dos hooks, executar algum código quando determinado evento acontece.
+Como podemos escrever um código que será executado em algum evento?
+
+Criando um código PHP e informando ao Git que o programa é um evento
+ 
+Alternativa correta
+Criando um código Java e informando ao Git que o .jar gerado é um evento
+ 
+Alternativa correta
+Criando um arquivo Shell Script, onde seu nome representa o evento, dentro da pasta .git/hooks
+ 
+Alternativa correta! Para ver com mais detalhes os possíveis hooks (eventos), confira este site: https://githooks.com/.
+
+https://githooks.com/
+
+@@03
+Deploy com Git
+
+Aqui, teremos todo o conhecimento necessário para colocarmos uma aplicação no ar, seja ela em qual linguagem de programação que for. Neste projeto utilizamos HTML para que ninguém se sinta intimidado. O que faremos é acessar o nosso servidor que criamos no primeiro curso, com cd ../servidor/, que inclusive o Git bash já nos mostra que trata-se de um servidor "puro" (bare).
+Acessaremos sua pasta de hooks por meio de cd hooks/. Não precisaremos entrar na pasta ".git", pois este repositório contém apenas esta parte que seria do ".git". Ao utilizarmos ls, teremos um evento pre-receive.sample, isto é, que precede uma atualização. Criaremos um evento post-receive, com vim post-receive, para que executemos este script após recebermos um push.
+
+Este script não fará muito, algo como copiar o arquivo index.html para uma pasta da nossa aplicação, por meio de:
+
+#!/bin/sh
+
+cp index.html C:\Users\ALURA\Documents\git-e-github\webCOPIAR CÓDIGO
+Isto funcionaria se o repositório tivesse uma cópia de index.html. Porém, lembram que trata-se de um repositório puro, que somente gerencia as modificações? Então, precisaremos de um comando Git para que se altere o estado atual da nossa aplicação, adicionando aquela Working tree, a árvore em que se localiza o diretório dos arquivos a serem editados.
+
+Portanto, executaremos:
+
+#!/bin/sh
+
+git --git-dir="C:\Users\ALURA\Documents\git-e-github\servidor" --work-tree="C:\Users\ALURA\Documents\git-e-github\web" checkout -fCOPIAR CÓDIGO
+Em que C:\Users\ALURA\Documents\git-e-github\servidor é o endereço do diretório Git, ou seja, do repositório. Precisaremos indicar que, a partir de agora, temos também a Working tree (ou Working dir, dependendo da literatura), que demonstra o local das cópias dos arquivos.
+
+Para verificar se este comando funciona, utilizaremos ":x" para sair, e no Terminal, digitaremos ls -l para garantir que as permissões estejam corretas, e então teremos o post-receive. Voltaremos para a pasta do Vinicius com cd ../../vinicius/ e executaremos git log --oneline. Não haverá nenhum commit que não tenha sido enviado, e criaremos um commit com alguma alteração feita manualmente no VS Code.
+
+Após executarmos git add index.html, git commit -m "Alterando título dos cursos de Linux". Antes de executarmos git push local master, porém, abriremos o arquivo post-receive com um editor de textos qualquer, e notaremos que o envio está sendo feito para a pasta "web", que não existe. Vamos criá-la antes que ocorra algum erro. Agora, sim, se tudo correr como esperado, quando executarmos o push, o arquivo index.html estará nesta pasta recém criada.
+
+Ou seja, é como se esta pasta fosse o nosso servidor web, a partir do qual conseguiremos acessar nossa aplicação. O hook em nosso repositório remoto, que chamamos de "local", foi executado com sucesso, e o comando checkout -f força um checkout, alterando o estado da aplicação, do nosso Work tree. Como não estamos passando nenhum novo estado, precisamos forçar o checkout.
+
+Com isso, conseguimos ter um deploy automático, e poderemos inclusive acessar a página HTML. Assim, se adicionarmos mais um curso à lista de cursos Linux, por exemplo, executando em seguida git status, git add index.html e git commit -m "Adicionando novo curso de Linux", e então git push local master, com o qual fazemos apenas o push, e mais nada, e acessarmos a página que seria o do nosso servidor rodando, já teremos a modificação aplicada.
+
+Temos, então, um processo de deploy totalmente automatizado, apenas utilizando o Git. Poderiam ter outras ferramentas envolvidas, deveriam, inclusive; poderíamos rodar o framework de testes no pré commit, minificar os arquivos se estivermos trabalhando com front end, e no post receive poderemos fazer deploy, ou quaisquer outros tratamentos necessários.
+
+Esta não é a única melhor forma de criarmos um deploy automatizado, e fica a recomendação de se fazer o curso de Integração Contínua: Maturidade e Produtividade no Desenvolvimento de Software para entender um pouco melhor sobre essas possibilidades.
+Esta, na minha opinião, é a parte mais interessante de quando se trabalha com Git: a automatização do trabalho.
+
+https://cursos.alura.com.br/course/integracao-continua-jenkins
+
+@@04
+Entrega contínua
+
+Na última aula, vimos de forma bem rudimentar como configurar um processo de entrega contínua do nosso código.
+Por que chamamos o resultado que alcançamos de entrega contínua?
+
+Porque estamos sempre entregando o código para o Git gerenciar
+ 
+Alternativa correta
+Porque estamos constantemente entregando novas versões para o repositório remoto
+ 
+Alternativa correta
+Porque a cada commit (a cada mudança significativa na base de código), podemos fazer um push e entregar o sistema em produção
+ 
+Alternativa correta! Entrega contínua é uma série de práticas que permitem que o código esteja de forma rápida e simples em produção. Tão rápido e simples quanto rodar um git push. Para saber mais sobre o assunto, confira o curso Integração Contínua: Maturidade e Produtividade no Desenvolvimento de Software aqui na Alura.
+
+https://cursos.alura.com.br/course/integracao-continua-jenkins
+
+@@05
+Consolidando o seu conhecimento
+
+Chegou a hora de você pôr em prática o que foi visto na aula. Para isso, execute os passos listados abaixo.
+Na linha de comando, acesse, dentro da pasta do seu repositório, a pasta .git/hooks;
+Dentro dessa pasta, crie o arquivo pre-commit, com o seguinte conteúdo:
+#!/bin/sh
+echo "Você está prestes a commitar. :-)"COPIAR CÓDIGO
+Se você estiver em uma plataforma diferente do Windows, digite chmod u+x pre-commit para dar permissão de execução a este arquivo;
+Execute alguma alteração qualquer no código;
+Digite os comandos git add index.html e git commit -m "Commit teste" para realizar um commit;
+Verifique que a mensagem "Você está prestes a commitar. :-)" foi exibida, logo, o seu hook foi executado com sucesso;
+Fora desta pasta, crie uma nova pasta chamada web;
+Dentro da pasta que você criou no curso anterior para ser o seu servidor remoto, acesse a pasta .git/hooks;
+Nesta pasta, crie um arquivo chamado post-receive com o seguinte conteúdo:
+#!/bin/sh
+git --git-dir={caminho_da_pasta_do_servidor} --work-tree={caminho_da_pasta_web} checkout -fCOPIAR CÓDIGO
+Substitua acima {caminho_da_pasta_do_servidor} pelo caminho da pasta criada no curso anterior para ser seu servidor remoto, e {caminho_da_pasta_web} pelo caminho da pasta criada no passo 7;
+De volta para a pasta que contém o seu código, execute o comando git push local master para enviar as alterações feitas no passo 4 para o servidor;
+Verifique que agora o arquivo index.html está presente na pasta criada no passo 7, ou seja, você fez o deploy da sua aplicação.
+
+Opinião do instrutor
+
+Continue com os seus estudos, e se houver dúvidas, não hesite em recorrer ao nosso fórum!
+
+@@06
+O que aprendemos?
+
+Nesta aula, aprendemos:
+Que o Git trabalha com eventos e os chama de hooks;
+Que podemos definir códigos a serem executados quando determinado evento (hook) ocorrer;
+A criar hooks dentro da pasta .git/hooks, utilizando Shell Script;
+Que o nome do arquivo indica em qual hook (evento) ele será executado;
+Que, com hooks, podemos executar os testes automatizados do nosso código, ou até mesmo colocar uma aplicação em produção.
+
+@@07
+Conclusão
+
+Boas vindas ao fim do curso de Git e GitHub! Parabéns por ter finalizado, é um curso importante na carreira de qualquer pessoa que desenvolverá, seja em back end, front end, análise de dados ou o que for. É sempre importante sabermos versionar o código que estamos desenvolvendo. Espero que tenha tirado muito proveito.
+Começamos conversando bastante sobre open source, GitHub, vimos como abrir uma issue, e depois fechá-la por meio de pull requests, que recebemos e analisamos. A partir disto entendemos como juntar vários commits em um só (squash de commits), com o rebase.
+
+Além disso, vimos como selecionar e trazer um único commit de outro branch por meio do cherry pick, aprendemos sobre o git bisect para conseguirmos encontrar momentos específicos em que determinadas alterações indesejadas, ou bugs, foram realizados.
+
+Aprendemos o comando git blame para sabermos quem é o responsável por cada linha de um arquivo, e conseguirmos então tirar dúvidas, lembrando que nunca devemos apontar um culpado.
+
+Organizamos nossos branches de forma um pouco mais profissional, e vimos que uma destas estratégias de branches é denominada Git flow. Conhecemos ferramentas com interface gráfica para conseguirmos gerenciar o controle de versões com o Git um pouco melhor.
+
+Uma delas inclusive nos ajuda bastante com esta parte do Git flow, o GitKraken, com o qual fizemos testes bem interessantes, criando e fechando features. Por fim, conhecemos os Git hooks, os ganchos dos eventos que o Git consegue emitir e capturar para a realização de tarefas automaticamente.
+
+Uma destas tarefas foi realizar o deploy automático da nossa aplicação. Com isso, conseguimos fazer com que, após a alteração do título de uma lista de cursos, se fizermos o commit correspondente e realizarmos o push para o repositório remoto configurado em nosso próprio computador, o deploy acontecerá automaticamente, e conseguiremos acessá-lo com o conteúdo atualizado.
+
+Isso dá espaço para várias possibilidades, claro, isso não é tudo que existe para se aprender sobre o Git, mas é mais do que o suficiente para que você continue esta caminhada e consiga trabalhar no dia a dia, resolvendo problemas um pouco mais complexos.
+
+Espero que tenha gostado, caso tenha ficado alguma dúvida, abra uma questão no fórum. Sempre tento respondê-las pessoalmente, mas se não conseguir, nossa comunidade é bastante solícita, e tenho certeza que alguém conseguirá te ajudar.
+
+Mais uma vez, muito obrigado e parabéns, espero te encontrar futuramente em novos cursos aqui na Alura! Um abraço!
+
+https://cursos.alura.com.br/forum/curso-git-github-branching-conflitos-pull-requests/todos
