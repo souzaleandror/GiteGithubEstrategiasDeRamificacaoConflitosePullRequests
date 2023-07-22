@@ -2,7 +2,6 @@
 
 Curso Git e Github: estratégias de ramificação, Conflitos e Pull Requests
 
-
 @01-GitHub e OpenSource
 
 @@01
